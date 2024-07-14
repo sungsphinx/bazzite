@@ -37,6 +37,8 @@ fi
 desktop=""
 if [[ ${image} == "gnome" || ${image} == "silverblue" ]]; then
     desktop="-gnome"
+elif [[ ${image} == "cosmic" || ${image} == "cosmic" ]]; then
+    desktop="-cosmic"
 fi
 image="${target}${desktop}"
 if [[ ${image} =~ "nvidia" ]]; then

@@ -21,4 +21,6 @@ if [[ $BASE_IMAGE_NAME = "kinoite" ]]; then
   sudo -Eu $USER qdbus org.kde.Shutdown /Shutdown org.kde.Shutdown.logout
 elif [[ $BASE_IMAGE_NAME = "silverblue" ]]; then
   sudo -Eu $USER gnome-session-quit --logout --no-prompt
+elif [[ $BASE_IMAGE_NAME = "cosmic" ]]; then
+  sudo -Eu $USER loginctl terminate-user $USER
 fi
