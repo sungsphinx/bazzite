@@ -23,8 +23,11 @@ jobs:
           - bazzite-nvidia
           - bazzite-gnome
           - bazzite-gnome-nvidia
+          - bazzite-cosmic
+          - bazzite-cosmic-nvidia
           - bazzite-deck
           - bazzite-deck-gnome
+          - bazzite-deck-cosmic
           - bazzite-ally
           - bazzite-ally-gnome
           - bazzite-asus
@@ -75,6 +78,8 @@ jobs:
 
           if [[ "${{ matrix.image_name }}" =~ "gnome" ]]; then
             FLATPAK_DIR_SHORTNAME="installer/gnome_flatpaks"
+          elif [[ "${{ matrix.image_name }}" =~ "cosmic" ]]; then
+            FLATPAK_DIR_SHORTNAME="installer/cosmic_flatpaks"
           fi
 
           echo "flatpak-dir-shortname=${FLATPAK_DIR_SHORTNAME}" >> $GITHUB_OUTPUT

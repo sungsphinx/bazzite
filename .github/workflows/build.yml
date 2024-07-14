@@ -50,7 +50,7 @@ jobs:
       matrix:
         base_image_flavor: [main]
         base_name: [bazzite, bazzite-deck, bazzite-nvidia]
-        base_image_name: [kinoite, silverblue]
+        base_image_name: [kinoite, silverblue, cosmic]
         target_image_flavor: [main, asus]
         fedora_version: [40]
         include:
@@ -76,6 +76,8 @@ jobs:
           DESKTOP=""
           if [[ "${{ matrix.base_image_name }}" == "silverblue" ]]; then
               DESKTOP="-gnome"
+          elif [[ "${{ matrix.base_image_name }}" == "cosmic" ]]; then
+              DESKTOP="-cosmic"
           fi
 
           if [[ "${{ matrix.base_name }}" == "bazzite-deck" ]]; then

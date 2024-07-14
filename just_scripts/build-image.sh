@@ -21,6 +21,8 @@ tag=$(just _tag "${image}")
 
 if [[ ${image} =~ "gnome" ]]; then
     base_image="silverblue"
+elif [[ ${image} =~ "cosmic" ]]; then
+    base_image="cosmic"
 else
     base_image="kinoite"
 fi

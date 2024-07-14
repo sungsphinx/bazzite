@@ -59,6 +59,9 @@ case "$session" in
   plasma-wayland-persistent)
     if [[ ${BASE_IMAGE_NAME} == 'kinoite' ]]; then
       session_launcher="plasma.desktop"
+    elif [[ ${BASE_IMAGE_NAME} == 'cosmic' ]]; then
+      session_launcher="cosmic.desktop"
+    fi
     elif [[ ${BASE_IMAGE_NAME} == 'silverblue' ]]; then
       session_launcher="gnome-wayland.desktop"
     fi
@@ -73,6 +76,8 @@ case "$session" in
   desktop|plasma)
     if [[ ${BASE_IMAGE_NAME} == 'kinoite' ]]; then
       session_launcher="plasma-steamos-wayland-oneshot.desktop"
+    elif [[ ${BASE_IMAGE_NAME} == 'silverblue' ]]; then
+      session_launcher="cosmic-oneshot.desktop"
     elif [[ ${BASE_IMAGE_NAME} == 'silverblue' ]]; then
       session_launcher="gnome-wayland-oneshot.desktop"
     fi
