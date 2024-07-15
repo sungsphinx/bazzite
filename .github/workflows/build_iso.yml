@@ -89,7 +89,7 @@ jobs:
         shell: bash
         run: |
           set -ex
-          image="ghcr.io/ublue-os/${{ matrix.image_name }}:${{ steps.generate-tag.outputs.tag }}"
+          image="ghcr.io/sungsphinx/${{ matrix.image_name }}:${{ steps.generate-tag.outputs.tag }}"
           # Make temp space
           TEMP_FLATPAK_INSTALL_DIR=$(mktemp -d -p ${{ github.workspace }} flatpak.XXX)
           # Get list of refs from directory
@@ -121,7 +121,7 @@ jobs:
         with:
           arch: x86_64
           image_name: ${{ matrix.image_name }}
-          image_repo: ghcr.io/ublue-os
+          image_repo: ghcr.io/sungsphinx
           variant: 'Kinoite'
           version: ${{ matrix.major_version }}
           image_tag: ${{ steps.generate-tag.outputs.tag }}
@@ -146,7 +146,7 @@ jobs:
           echo "iso-upload-dir=${ISO_UPLOAD_DIR}" >> $GITHUB_OUTPUT
 
       - name: Upload ISOs and Checksum to Job Artifacts
-        if: github.ref_name == 'testing'
+        # if: github.ref_name == 'testing'
         #if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
