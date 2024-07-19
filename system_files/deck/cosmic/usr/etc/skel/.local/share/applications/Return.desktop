@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Return to Gaming Mode
-Exec=systemctl start return-to-gamemode.service
+Exec=sh -c 'loginctl terminate-user $USER'
 Icon=steamdeck-gaming-return
 Terminal=false
 Type=Application
