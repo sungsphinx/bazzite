@@ -5,11 +5,13 @@ set -e
 die() { echo >&2 "!! $*"; exit 1; }
 
 SENTINEL_FILE="steamos-session-select"
+SENTINEL_VALUE="wayland"
 
 # If we proceed, execute this
-CHAINED_SESSION="/usr/bin/start-cosmic"
+CHAINED_SESSION="/usr/bin/start-cosmic-wayland"
+
 # If we decide the sentinel is consumed, execute this command instead and fail
-RESTORE_SESSION=(/usr/bin/steamos-session-select) # No arguments restores the session
+RESTORE_SESSION=(steamos-session-select) # No arguments restores the session
 
 # Find or check config sentinel
 function check_sentinel()
@@ -25,7 +27,9 @@ function check_sentinel()
     cd "$HOME"
     cd "$config_dir"
     sentinel_value="$(cat "$SENTINEL_FILE")"
-    if [[ "$sentinel_value" == "x11" || "$sentinel_value" == "wayland" ]]; then
+    if [[ "$sentinel_value" == "wayland" ]]; then
+      echo "/usr/bin/start-cosmic"
+    elif [[ "$sentinel_value" == "x11" ]]; then
       echo "/usr/bin/start-cosmic"
     else
       return 1
@@ -39,7 +43,7 @@ function check_sentinel()
 }
 
 if CONFIGURED_CHAINED_SESSION=$(check_sentinel); then
-  # We found and consumed the oneshot sentinel, proceed to launch plasma
+  # We found and consumed the oneshot sentinel, proceed to launch cosmic
   echo >&2 "$0: Found and removed sentinel file for one-shot desktop, proceeding to launch"
   exec "$CONFIGURED_CHAINED_SESSION"
 else

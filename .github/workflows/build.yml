@@ -59,6 +59,18 @@ jobs:
             is_stable_version: true
             kernel_flavor: fsync  # must match a kernel_flavor from akmods repo
     steps:
+      - name: Define env.BASE_IMAGE_FLAVOR
+        run: |
+          if [[ "${{ matrix.base_image_name }}" == "cosmic" ]]; then
+              if [[ "${{ matrix.base_image_flavor }}" == "main" ]]; then
+                  echo "BASE_IMAGE_FLAVOR=base" >> $GITHUB_ENV
+              else
+                  echo "BASE_IMAGE_FLAVOR=${{ format('{0}-{1}', matrix.base_image_flavor, 'base') }}" >> $GITHUB_ENV
+              fi
+          else
+              echo "BASE_IMAGE_FLAVOR=${{ matrix.base_image_flavor }}" >> $GITHUB_ENV
+          fi
+
       - name: Define env.IMAGE_FLAVOR
         run: |
           if [[ "${{ matrix.base_name }}" == "bazzite-nvidia" ]]; then
@@ -94,18 +106,6 @@ jobs:
               fi
           fi
 
-      - name: Define env.BASE_IMAGE_FLAVOR
-        run: |
-          if [[ "${{ matrix.base_image_name }}" == "cosmic" ]]; then
-              if [[ "${{ matrix.base_image_flavor }}" == "main" ]]; then
-                  echo "BASE_IMAGE_FLAVOR=base" >> $GITHUB_ENV
-              else
-                  echo "BASE_IMAGE_FLAVOR=${{ format('{0}-{1}', matrix.base_image_flavor, 'base') }}" >> $GITHUB_ENV
-              fi
-          else
-              echo "BASE_IMAGE_FLAVOR=${{ matrix.base_image_flavor }}" >> $GITHUB_ENV
-          fi
-
       - name: Define env.SHA_HEAD_SHORT
         run: |
           echo "SHA_HEAD_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
@@ -113,8 +113,8 @@ jobs:
       # - name: Verify main image
       #   uses: EyeCantCU/cosign-action/verify@v0.3.0
       #   with:
-      #     containers: ${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }}
-      #     pubkey: https://raw.githubusercontent.com/ublue-os/${{ matrix.base_image_flavor }}/main/cosign.pub
+      #     containers: ${{ matrix.base_image_name }}-${{ env.BASE_IMAGE_FLAVOR }}:${{ matrix.fedora_version }}
+      #     pubkey: https://raw.githubusercontent.com/ublue-os/${{ env.BASE_IMAGE_FLAVOR }}/main/cosign.pub
       #     registry: ghcr.io/ublue-os
 
       # - name: Verify akmods image
@@ -207,11 +207,7 @@ jobs:
           command: |
             # pull the base images used for FROM in Containerfile so
             # we can retry on that unfortunately common failure case
-            if [[ "${{ matrix.base_image_name }}" == "cosmic" ]]; then
-            	podman pull ghcr.io/ublue-os/${{ matrix.base_image_name }}-base:${{ matrix.fedora_version }}
-            else
-            	podman pull ghcr.io/ublue-os/${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }}
-            fi
+            podman pull ghcr.io/ublue-os/${{ matrix.base_image_name }}-${{ env.BASE_IMAGE_FLAVOR }}:${{ matrix.fedora_version }}
             podman pull ghcr.io/ublue-os/akmods:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}
             podman pull ghcr.io/ublue-os/akmods-nvidia:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}
 
@@ -223,11 +219,7 @@ jobs:
           attempt_delay: 15000
           command: |
             set -eo pipefail
-            if [[ "${{ matrix.base_image_name }}" == "cosmic" ]]; then
-            	skopeo inspect docker://ghcr.io/ublue-os/${{ matrix.base_image_name }}-base:${{ matrix.fedora_version }} > source.json
-            else
-            	skopeo inspect docker://ghcr.io/ublue-os/${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }} > source.json
-            fi
+            skopeo inspect docker://ghcr.io/ublue-os/${{ matrix.base_image_name }}-${{ env.BASE_IMAGE_FLAVOR }}:${{ matrix.fedora_version }} > source.json
             ver=$(jq -r '.Labels["org.opencontainers.image.version"]' source.json)
             if [ -z "$ver" ] || [ "null" = "$ver" ]; then
               echo "inspected image version must not be empty or null"

@@ -683,6 +683,9 @@ RUN rpm-ostree override remove \
             steamdeck-kde-presets-desktop && \
         rpm-ostree install \
             steamdeck-kde-presets \
+    ; elif grep -q "cosmic" <<< "${BASE_IMAGE_NAME"; then \
+    	rpm-ostree install \
+    	    sddm \
     ; else \
         rpm-ostree install \
             steamdeck-gnome-presets \
@@ -768,6 +771,9 @@ RUN /usr/libexec/containerbuild/image-info && \
     if grep -q "silverblue" <<< "${BASE_IMAGE_NAME}"; then \
         systemctl disable gdm.service && \
         systemctl enable sddm.service \
+    ; elif grep -q "cosmic" <<< "${BASE_IMAGE_NAME"; then \
+    	systemctl disable cosmic-greeter.service && \
+    	systemctl enable sddm.service \
     ; fi && \
     systemctl enable bazzite-autologin.service && \
     systemctl enable wireplumber-workaround.service && \
