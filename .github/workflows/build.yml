@@ -104,18 +104,6 @@ jobs:
               fi
           fi
 
-      - name: Define env.BASE_IMAGE_FLAVOR
-        run: |
-          if [[ "${{ matrix.base_image_name }}" == "cosmic" ]]; then
-              if [[ "${{ matrix.base_image_flavor }}" == "main" ]]; then
-                  echo "BASE_IMAGE_FLAVOR=base" >> $GITHUB_ENV
-              else
-                  echo "BASE_IMAGE_FLAVOR=${{ format('{0}-{1}', matrix.base_image_flavor, 'base') }}" >> $GITHUB_ENV
-              fi
-          else
-              echo "BASE_IMAGE_FLAVOR=${{ matrix.base_image_flavor }}" >> $GITHUB_ENV
-          fi
-
       - name: Define env.SHA_HEAD_SHORT
         run: |
           echo "SHA_HEAD_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
@@ -165,22 +153,12 @@ jobs:
           command: |
             # pull the base images used for FROM in Containerfile so
             # we can retry on that unfortunately common failure case
-<<<<<<< HEAD
-            sudo podman pull ${{ env.IMAGE_REGISTRY }}/${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }}
-            sudo podman pull ${{ env.IMAGE_REGISTRY }}/akmods:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}-${{ matrix.kernel_version }}
-            sudo podman pull ${{ env.IMAGE_REGISTRY }}/akmods-nvidia:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}-${{ matrix.kernel_version }}
+            sudo podman pull ghcr.io/ublue-os/${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }}
+            sudo podman pull ghcr.io/ublue-os/akmods:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}-${{ matrix.kernel_version }}
+            sudo podman pull ghcr.io/ublue-os/akmods-nvidia:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}-${{ matrix.kernel_version }}
 
             # Add rechunk as well to remove this source of failure
             sudo podman pull ghcr.io/hhd-dev/rechunk:v0.8.3
-=======
-            if [[ "${{ matrix.base_image_name }}" == "cosmic" ]]; then
-            	podman pull ghcr.io/ublue-os/${{ matrix.base_image_name }}-base:${{ matrix.fedora_version }}
-            else
-            	podman pull ghcr.io/ublue-os/${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }}
-            fi
-            podman pull ghcr.io/ublue-os/akmods:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}
-            podman pull ghcr.io/ublue-os/akmods-nvidia:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}
->>>>>>> 600d27f2 (test)
 
       - name: Get source versions
         id: labels
@@ -190,11 +168,7 @@ jobs:
           attempt_delay: 15000
           command: |
             set -eo pipefail
-            if [[ "${{ matrix.base_image_name }}" == "cosmic" ]]; then
-            	skopeo inspect docker://ghcr.io/ublue-os/${{ matrix.base_image_name }}-base:${{ matrix.fedora_version }} > source.json
-            else
-            	skopeo inspect docker://ghcr.io/ublue-os/${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }} > source.json
-            fi
+            skopeo inspect docker://ghcr.io/ublue-os/${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }} > source.json
             ver=$(jq -r '.Labels["org.opencontainers.image.version"]' source.json)
             if [ -z "$ver" ] || [ "null" = "$ver" ]; then
               echo "inspected image version must not be empty or null"
@@ -214,7 +188,6 @@ jobs:
           FEDORA_VERSION="${{ matrix.fedora_version }}"
           SHA_SHORT="${GITHUB_SHA::7}"
 
-<<<<<<< HEAD
           if [ -n "${{ github.event.pull_request.number }}" ]; then
             VERSION="pr-${FEDORA_VERSION}-${{ github.event.pull_request.number }}"
             PRETTY_VERSION="PR (${{ github.event.pull_request.number }}, ${UPSTREAM_TAG})"
@@ -230,15 +203,6 @@ jobs:
           fi
           echo "tag=${VERSION}" >> $GITHUB_OUTPUT
           echo "pretty=${PRETTY_VERSION}" >> $GITHUB_OUTPUT
-=======
-            skopeo inspect docker://ghcr.io/ublue-os/akmods:${{ matrix.kernel_flavor }}-${{ matrix.fedora_version }} > akmods.json
-            linux=$(jq -r '.Labels["ostree.linux"]' akmods.json)
-            if [ -z "$linux" ] || [ "null" = "$linux" ]; then
-              echo "inspected image linux version must not be empty or null"
-              exit 1
-            fi
-            echo "KERNEL_VERSION=$linux" >> $GITHUB_ENV
->>>>>>> 600d27f2 (test)
 
           echo "Generated the following:"
           cat $GITHUB_OUTPUT
@@ -291,7 +255,6 @@ jobs:
         id: rechunk
         uses: hhd-dev/rechunk@v0.8.6
         with:
-<<<<<<< HEAD
           rechunk: 'ghcr.io/hhd-dev/rechunk:v0.8.3'
           ref: 'raw-img'
           prev-ref: '${{ steps.generate-prev-ref.outputs.ref }}'
@@ -387,27 +350,6 @@ jobs:
           done
           # keep for secureboot check
           podman tag $IMAGE rechunked-img
-=======
-          containerfiles: |
-            ./Containerfile
-          image: ${{ env.IMAGE_NAME }}
-          tags: |
-            ${{ steps.generate-tags.outputs.alias_tags }}
-          build-args: |
-            IMAGE_NAME=${{ env.IMAGE_NAME }}
-            IMAGE_FLAVOR=${{ env.IMAGE_FLAVOR }}
-            IMAGE_VENDOR=${{ github.repository_owner }}
-            BASE_IMAGE_NAME=${{ matrix.base_image_name }}
-            BASE_IMAGE_FLAVOR=${{ env.BASE_IMAGE_FLAVOR }}
-            FEDORA_VERSION=${{ matrix.fedora_version }}
-            KERNEL_FLAVOR=${{ matrix.kernel_flavor }}
-            IMAGE_BRANCH=${{ github.ref_name }}
-            SHA_HEAD_SHORT=${{ env.SHA_HEAD_SHORT }}
-          labels: ${{ steps.meta.outputs.labels }}
-          oci: false
-          extra-args: |
-            --target=${{ matrix.base_name }}
->>>>>>> 600d27f2 (test)
 
       - name: Check Secureboot
         shell: bash
