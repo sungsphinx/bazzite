@@ -82,9 +82,15 @@ else
 fi
 
 # Set up Firefox default configuration
-mkdir -p /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref
-rm -f /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref/*bazzite*.js
-/usr/bin/cp -rf /usr/share/ublue-os/firefox-config/* /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref/
+if [[ $BASE_IMAGE_NAME == "cosmic" ]]; then
+  mkdir -p ${HOME}/.local/share/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref
+  rm -f ${HOME}/.local/share/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref/*bazzite*.js
+  /usr/bin/cp -rf /usr/share/ublue-os/firefox-config/* ${HOME}/.local/share/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref/
+else
+  mkdir -p /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref
+  rm -f /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref/*bazzite*.js
+  /usr/bin/cp -rf /usr/share/ublue-os/firefox-config/* /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref/
+fi
 
 # Update Flatpaks
 flatpak update -y
