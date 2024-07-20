@@ -22,5 +22,5 @@ if [[ $BASE_IMAGE_NAME = "kinoite" ]]; then
 elif [[ $BASE_IMAGE_NAME = "silverblue" ]]; then
   sudo -Eu $USER gnome-session-quit --logout --no-prompt
 elif [[ $BASE_IMAGE_NAME = "cosmic" ]]; then
-  sudo -Eu $USER loginctl terminate-user $USER
+  sudo -Eu $USER killall cosmic-session
 fi

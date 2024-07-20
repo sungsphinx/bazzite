@@ -23,8 +23,14 @@ if [[ -f $VER_FILE && $VER = $VER_RAN ]]; then
 fi
 
 # Ensure Flathub is enabled
-flatpak remote-add --if-not-exists --system flathub /etc/flatpak/remotes.d/flathub.flatpakrepo
-flatpak remote-modify --system --enable flathub
+if [[ $BASE_IMAGE_NAME =~ "cosmic" ]]; then
+  # Add as a user remote so COSMIC App Store shows apps as installed
+  flatpak remote-add --if-not-exists --user flathub /etc/flatpak/remotes.d/flathub.flatpakrepo
+  flatpak remote-modify --user --enable flathub
+else
+  flatpak remote-add --if-not-exists --system flathub /etc/flatpak/remotes.d/flathub.flatpakrepo
+  flatpak remote-modify --system --enable flathub
+fi
 
 # Flatpak theming support
 flatpak override \
@@ -34,13 +40,11 @@ flatpak override \
 
 # XInput for Firefox
 flatpak override \
-  --system \
   --env=MOZ_USE_XINPUT2=1 \
   org.mozilla.firefox
 
 # Fix printing on LibreOffice
 flatpak override \
-  --system \
   --socket=cups \
   --socket=session-bus \
   org.libreoffice.LibreOffice
@@ -58,7 +62,6 @@ flatpak override \
 # Params needed for HW accelerated video on Nvidia (Ignoring hybrid systems)
 if [[ $IMAGE_FLAVOR =~ "nvidia" ]] && [ $(grep -o "\-display" <<< $(lshw -C display) | wc -l) -le 1 ] && grep -q "vendor: NVIDIA Corporation" <<< $(lshw -C display); then
   flatpak override \
-    --system \
     --filesystem=host-os \
     --env=LIBVA_DRIVER_NAME=nvidia \
     --env=LIBVA_DRIVERS_PATH=/run/host/usr/lib64/dri \
@@ -69,7 +72,6 @@ if [[ $IMAGE_FLAVOR =~ "nvidia" ]] && [ $(grep -o "\-display" <<< $(lshw -C disp
 else
   # Undo if user was previously using a Nvidia image and is no longer
   flatpak override \
-    --system \
     --nofilesystem=host-os \
     --unset-env=LIBVA_DRIVER_NAME \
     --unset-env=LIBVA_DRIVERS_PATH \
@@ -85,7 +87,7 @@ rm -f /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/
 /usr/bin/cp -rf /usr/share/ublue-os/firefox-config/* /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref/
 
 # Update Flatpaks
-flatpak --system update -y
+flatpak update -y
 
 mkdir -p /etc/bazzite
 echo $VER > $VER_FILE
