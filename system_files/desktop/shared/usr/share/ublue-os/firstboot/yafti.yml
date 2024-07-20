@@ -21,7 +21,7 @@ screens:
           description: Adds the input group to your current user. Required by certain controller drivers.
           default: true
           packages:
-          - Set input group: sudo -A ujust add-user-to-input-group
+          - Set input group: pkexec ujust add-user-to-input-group
         Sunshine:
           description: A self-hosted game stream host for Moonlight
           default: false

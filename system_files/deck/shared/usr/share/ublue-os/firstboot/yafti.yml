@@ -21,17 +21,17 @@ screens:
           description: Adds the input group to your current user. Required by certain controller drivers.
           default: true
           packages:
-          - Set input group: sudo -A ujust add-user-to-input-group
+          - Set input group: pkexec ujust add-user-to-input-group
         BIOS &amp; Firmware Updates:
           description: Enables BIOS &amp; Firmware updates for Steam Deck hardware
           default: true
           packages:
-          - Enable Updates: sudo -A ujust enable-deck-bios-firmware-updates
+          - Enable Updates: pkexec ujust enable-deck-bios-firmware-updates
         Decky Loader:
           description: A plugin loader for the Steam Deck
           default: false
           packages:
-          - Retrieve Decky: sudo -A ujust setup-decky install
+          - Retrieve Decky: pkexec ujust setup-decky install
         EmuDeck:
           description: |
             A utility for installing and configuring emulators on the Steam Deck
@@ -49,7 +49,7 @@ screens:
             NOTE: Press the escape key before boot to show the menu
           default: false
           packages:
-          - Hide GRUB: sudo -A ujust configure-grub hide
+          - Hide GRUB: pkexec ujust configure-grub hide
         Oversteer:
           description: Application to control supported steering wheels
           default: false
