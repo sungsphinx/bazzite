@@ -692,6 +692,8 @@ RUN rm -f /etc/profile.d/toolbox.sh && \
     systemctl enable input-remapper.service && \
     systemctl unmask bazzite-flatpak-manager.service && \
     systemctl enable bazzite-flatpak-manager.service && \
+    systemctl unmask bazzite-cosmic-flatpak-manager.service && \
+    systemctl enable bazzite-cosmic-flatpak-manager.service && \
     systemctl disable rpm-ostreed-automatic.timer && \
     systemctl enable ublue-update.timer && \
     systemctl enable incus-workaround.service && \

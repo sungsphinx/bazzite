@@ -1,0 +1,8 @@
+polkit.addRule(function(action, subject) {
+    if (subject.isInGroup("wheel") &&
+        action.id == "org.freedesktop.Flatpak.configure-remote" &&
+        action.lookup("unit") == "bazzite-cosmic-flatpak-manager.service")
+    {
+        return polkit.Result.YES;
+    }
+})

@@ -1,5 +1,5 @@
 [Unit]
-Description=Install system Flatpaks as user
+Description=Reinstall system Flatpaks as user
 Wants=network-online.target
 After=network-online.target bazzite-hardware-setup.service bazzite-flatpak-manager.service
 
@@ -9,6 +9,3 @@ ExecStart=/usr/libexec/bazzite-cosmic-flatpak-manager
 Restart=on-failure
 RestartSec=30
 StartLimitInterval=0
-
-[Install]
-WantedBy=multi-user.target
