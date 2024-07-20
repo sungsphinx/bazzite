@@ -1,0 +1,43 @@
+#!/usr/bin/bash
+
+# SCRIPT VERSION
+VER=1
+VER_FILE="$HOME/.local/share/bazzite/cosmic_flatpak_manager_version"
+VER_RAN=$(cat $VER_FILE)
+IMAGE_INFO="/usr/share/ublue-os/image-info.json"
+IMAGE_FLAVOR=$(jq -r '."image-flavor"' < $IMAGE_INFO)
+BASE_IMAGE_NAME=$(jq -r '."base-image-name"' < $IMAGE_INFO)
+
+# IMAGE IDENTIFIERS
+KNOWN_IMAGE_FLAVOR_FILE="/etc/bazzite/cosmic_flatpak_manager_image_flavor"
+KNOWN_IMAGE_FLAVOR=$(cat $KNOWN_IMAGE_FLAVOR_FILE)
+
+# Run script if updated
+if [[ -f $VER_FILE && $VER = $VER_RAN ]]; then
+  if [[ -f $KNOWN_IMAGE_FLAVOR_FILE ]]; then
+    if [[ $IMAGE_FLAVOR = $KNOWN_IMAGE_FLAVOR ]]; then
+      echo "COSMIC Flatpak manager v$VER has already ran. Exiting..."
+      exit 0
+    fi
+  fi
+fi
+
+if [[ $(flatpak remotes --system --columns=name | grep "flathub$") == "flathub" ]]; then
+    if [[ $(flatpak list --system --columns=ref) ]]; then
+      flatpak install --user flathub $(flatpak list --system --columns=ref) -y
+      flatpak uninstall --system $(flatpak list --system --columns=ref) -y
+    fi
+    flatpak remote-delete --system flathub
+fi
+
+# Set up Firefox default configuration
+mkdir -p ${HOME}/.local/share/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref
+rm -f ${HOME}/.local/share/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref/*bazzite*.js
+cp -rf /usr/share/ublue-os/firefox-config/* ${HOME}/.local/share/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref/
+
+# Update Flatpaks
+flatpak update -y
+
+mkdir -p $HOME/.local/share/bazzite
+echo $VER > $VER_FILE
+echo $IMAGE_FLAVOR > $KNOWN_IMAGE_FLAVOR_FILE
