@@ -91,15 +91,9 @@ jobs:
           mkdir -p /flatpak/flatpak /flatpak/triggers
           mkdir /var/tmp || true
           chmod -R 1777 /var/tmp
-          if [[ "${{ matrix.image_name }}" =~ "cosmic" ]]; then
-            flatpak config --user --set languages "*"
-            flatpak remote-add --user flathub https://flathub.org/repo/flathub.flatpakrepo
-            flatpak install --user -y ${FLATPAK_REFS_DIR_LIST}
-          else
-            flatpak config --system --set languages "*"
-            flatpak remote-add --system flathub https://flathub.org/repo/flathub.flatpakrepo
-            flatpak install --system -y ${FLATPAK_REFS_DIR_LIST}
-          fi
+          flatpak config --system --set languages "*"
+          flatpak remote-add --system flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --system -y ${FLATPAK_REFS_DIR_LIST}
           ostree refs --repo=\${FLATPAK_SYSTEM_DIR}/repo | grep '^deploy/' | grep -v 'org\.freedesktop\.Platform\.openh264' | sed 's/^deploy\///g' > /output/flatpaks_with_deps
           EOF
           docker run --rm --privileged \
