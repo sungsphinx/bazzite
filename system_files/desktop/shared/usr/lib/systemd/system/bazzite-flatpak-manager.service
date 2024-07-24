@@ -2,6 +2,7 @@
 Description=Manage system flatpaks
 Wants=network-online.target
 After=network-online.target bazzite-hardware-setup.service
+Conflicts=bazzite-cosmic-flatpak-manager.service
 
 [Service]
 Type=oneshot

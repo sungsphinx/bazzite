@@ -1,7 +1,8 @@
 [Unit]
-Description=Reinstall system Flatpaks as user
+Description=Manage user flatpaks for COSMIC
 Wants=network-online.target
-After=network-online.target bazzite-hardware-setup.service bazzite-flatpak-manager.service
+After=network-online.target bazzite-hardware-setup.service
+Conflicts=bazzite-flatpak-manager.service
 
 [Service]
 Type=oneshot

@@ -22,6 +22,10 @@ if [[ -f $VER_FILE && $VER = $VER_RAN ]]; then
   fi
 fi
 
+# Ensure Flathub is enabled
+flatpak remote-add --if-not-exists --user flathub /usr/etc/flatpak/remotes.d/flathub.flatpakrepo
+flatpak remote-modify --user --enable flathub
+
 if [[ $(flatpak remotes --system --columns=name | grep "flathub$") == "flathub" ]]; then
     if [[ $(flatpak list --system --columns=ref) ]]; then
       flatpak install --user flathub $(flatpak list --system --columns=ref) -y
@@ -89,7 +93,7 @@ rm -f ${HOME}/.local/share/extension/org.mozilla.firefox.systemconfig/x86_64/sta
 cp -rf /usr/share/ublue-os/firefox-config/* ${HOME}/.local/share/flatpak/extension/org.mozilla.firefox.systemconfig/x86_64/stable/defaults/pref/
 
 # Update Flatpaks
-flatpak update -y
+flatpak --user update -y
 
 mkdir -p $HOME/.local/share/bazzite
 echo $VER > $VER_FILE
