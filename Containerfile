@@ -691,8 +691,8 @@ RUN rm -f /etc/profile.d/toolbox.sh && \
     systemctl enable displaylink.service && \
     systemctl enable input-remapper.service && \
     if [[ "${BASE_IMAGE_NAME}" == "cosmic" ]]; then \
-      	systemctl unmask bazzite-cosmic-flatpak-manager.service && \
-      	systemctl enable bazzite-cosmic-flatpak-manager.service \
+      	systemctl unmask --user bazzite-cosmic-flatpak-manager.service && \
+      	systemctl enable -user bazzite-cosmic-flatpak-manager.service \
     ; else \
       	systemctl unmask bazzite-flatpak-manager.service && \
       	systemctl enable bazzite-flatpak-manager.service \
