@@ -1,6 +1,6 @@
 (
     palette: Dark((
-        name: "VGUI2 Classic",
+        name: "VGUI2",
         blue: (
             red: 0.5803922,
             green: 0.92156863,
