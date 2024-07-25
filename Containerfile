@@ -692,10 +692,10 @@ RUN rm -f /etc/profile.d/toolbox.sh && \
     systemctl enable input-remapper.service && \
     if grep -q "cosmic" <<< "${BASE_IMAGE_NAME}"; then \
       systemctl unmask bazzite-cosmic-flatpak-manager.service && \
-      systemctl enable bazzite-cosmic-flatpak-manager.service && \
+      systemctl enable bazzite-cosmic-flatpak-manager.service \
     else \
       systemctl unmask bazzite-flatpak-manager.service && \
-      systemctl enable bazzite-flatpak-manager.service && \
+      systemctl enable bazzite-flatpak-manager.service \
     fi
     systemctl disable rpm-ostreed-automatic.timer && \
     systemctl enable ublue-update.timer && \
