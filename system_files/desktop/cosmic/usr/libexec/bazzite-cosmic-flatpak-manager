@@ -9,7 +9,7 @@ IMAGE_FLAVOR=$(jq -r '."image-flavor"' < $IMAGE_INFO)
 BASE_IMAGE_NAME=$(jq -r '."base-image-name"' < $IMAGE_INFO)
 
 # IMAGE IDENTIFIERS
-KNOWN_IMAGE_FLAVOR_FILE="/etc/bazzite/cosmic_flatpak_manager_image_flavor"
+KNOWN_IMAGE_FLAVOR_FILE="$HOME/.local/share/bazzite/cosmic_flatpak_manager_image_flavor"
 KNOWN_IMAGE_FLAVOR=$(cat $KNOWN_IMAGE_FLAVOR_FILE)
 
 # Run script if updated
