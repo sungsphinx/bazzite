@@ -10,3 +10,6 @@ ExecStart=/usr/libexec/bazzite-cosmic-flatpak-manager
 Restart=on-failure
 RestartSec=30
 StartLimitInterval=0
+
+[Install]
+WantedBy=default.target
