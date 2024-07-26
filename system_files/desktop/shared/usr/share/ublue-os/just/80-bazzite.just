@@ -37,29 +37,28 @@ configure-grub ACTION="":
       OPTION=$(Choose "Hide Grub" "Unhide Grub" "Fix double ostree entry")
     fi
     if [[ "${OPTION,,}" =~ ^hide ]]; then
-      sudo sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/g' /etc/default/grub
-      echo 'GRUB_TIMEOUT_STYLE=hidden' | sudo tee -a /etc/default/grub 1>/dev/null
-      echo 'GRUB_HIDDEN_TIMEOUT=1' | sudo tee -a /etc/default/grub 1>/dev/null
+      pkexec sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/g' /etc/default/grub
+      echo 'GRUB_TIMEOUT_STYLE=hidden' | pkexec tee -a /etc/default/grub 1>/dev/null
+      echo 'GRUB_HIDDEN_TIMEOUT=1' | pkexec tee -a /etc/default/grub 1>/dev/null
       if [ -d /sys/firmware/efi ]; then
-        sudo grub2-mkconfig -o /etc/grub2-efi.cfg
+        pkexec grub2-mkconfig -o /etc/grub2-efi.cfg
       else
-        sudo grub2-mkconfig -o /etc/grub2.cfg
+        pkexec grub2-mkconfig -o /etc/grub2.cfg
       fi
     elif [[ "${OPTION,,}" =~ ^unhide ]]; then
-      sudo sed -i '/GRUB_HIDDEN_TIMEOUT=1/d' /etc/default/grub
-      sudo sed -i '/GRUB_TIMEOUT_STYLE=hidden/d' /etc/default/grub
-      sudo sed -i 's/GRUB_TIMEOUT=0/GRUB_TIMEOUT=5/g' /etc/default/grub
+      pkexec sed -i '/GRUB_HIDDEN_TIMEOUT=1/d' /etc/default/grub
+      pkexec sed -i '/GRUB_TIMEOUT_STYLE=hidden/d' /etc/default/grub
+      pkexec sed -i 's/GRUB_TIMEOUT=0/GRUB_TIMEOUT=5/g' /etc/default/grub
       if [ -d /sys/firmware/efi ]; then
-        sudo grub2-mkconfig -o /etc/grub2-efi.cfg
+        pkexec grub2-mkconfig -o /etc/grub2-efi.cfg
       else
-        sudo grub2-mkconfig -o /etc/grub2.cfg
+        pkexec grub2-mkconfig -o /etc/grub2.cfg
       fi
     elif [[ "${OPTION,,}" =~ ^fix ]]; then
-      sudo grub2-switch-to-blscfg
       if [ -d /sys/firmware/efi ]; then
-        sudo grub2-mkconfig -o /etc/grub2-efi.cfg
+        pkexec grub2-mkconfig -o /etc/grub2-efi.cfg
       else
-        sudo grub2-mkconfig -o /etc/grub2.cfg
+        pkexec grub2-mkconfig -o /etc/grub2.cfg
       fi
     fi
 
@@ -67,9 +66,9 @@ configure-grub ACTION="":
 add-user-to-input-group:
     #!/usr/bin/bash
     if ! grep -q "input" /etc/group; then
-      sudo bash -c 'grep "input" /lib/group >> /etc/group'
+      pkexec bash -c 'grep "input" /lib/group >> /etc/group'
     fi
-    sudo usermod -a -G input $USER
+    pkexec usermod -a -G input $USER
 
 # Configure watchdog (default: enabled, recovers the system in the event of a malfunction)
 configure-watchdog ACTION="":
@@ -131,13 +130,14 @@ setup-decky ACTION="install":
       exit 0
     fi
     if [[ "${OPTION,,}" =~ install ]]; then
-      export HOME=$(getent passwd ${SUDO_USER:-$USER} | cut -d: -f6)
+      export HOME=$(getent passwd $(id -nu $PKEXEC_UID) | cut -d: -f6)
       if [ ! -L "/home/deck" ] && [ ! -e "/home/deck" ]  && [ "$HOME" != "/home/deck" ]; then
         echo "Making a /home/deck symlink to fix plugins that do not use environment variables."
-        sudo ln -sf "$HOME" /home/deck
+        pkexec ln -sf "$HOME" /home/deck
       fi
-      curl -L https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sh
-      sudo chcon -R -t bin_t $HOME/homebrew/services/PluginLoader
+      alias sudo="pkexec "
+      SUDO_USER="$(id -nu $PKEXEC_UID)" source <(curl -L https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh)
+      pkexec chcon -R -t bin_t $HOME/homebrew/services/PluginLoader
     fi
     if [[ "${OPTION,,}" =~ prerelease ]]; then
       export HOME=$(getent passwd ${SUDO_USER:-$USER} | cut -d: -f6)

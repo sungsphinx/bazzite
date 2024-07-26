@@ -20,7 +20,7 @@ install-lact:
           -O /tmp/lact.rpm
     fi
     rpm-ostree install --apply-live -y /tmp/lact.rpm
-    sudo systemctl enable --now lactd
+    pkexec systemctl enable --now lactd
     rm /tmp/lact.rpm
     echo 'Complete.'
 
@@ -28,7 +28,7 @@ install-lact:
 install-coolercontrol:
     #!/usr/bin/bash
     ublue-update --wait
-    sudo wget https://copr.fedorainfracloud.org/coprs/codifryed/CoolerControl/repo/fedora-$(rpm -E %fedora)/codifryed-CoolerControl-fedora-$(rpm -E %fedora).repo -O /etc/yum.repos.d/_copr_codifryed-CoolerControl.repo
+    pkexec wget https://copr.fedorainfracloud.org/coprs/codifryed/CoolerControl/repo/fedora-$(rpm -E %fedora)/codifryed-CoolerControl-fedora-$(rpm -E %fedora).repo -O /etc/yum.repos.d/_copr_codifryed-CoolerControl.repo
     rpm-ostree install --apply-live -y liquidctl coolercontrol
     systemctl enable coolercontrold.service
     mkdir -p $HOME/.config/autostart
@@ -47,13 +47,13 @@ install-steamcmd:
 
 # Install OpenRazer for Razer gaming hardware
 install-openrazer:
-    sudo wget https://download.opensuse.org/repositories/hardware:/razer/Fedora_$(rpm -E %fedora)/hardware:razer.repo -O /etc/yum.repos.d/hardware:razer.repo && \
+    pkexec wget https://download.opensuse.org/repositories/hardware:/razer/Fedora_$(rpm -E %fedora)/hardware:razer.repo -O /etc/yum.repos.d/hardware:razer.repo && \
     ublue-update --wait && \
     rpm-ostree install -y openrazer-meta razergenie && \
     if ! grep -q "plugdev" /etc/group; then \
-      sudo bash -c 'grep "plugdev" /lib/group >> /etc/group' \
+      pkexec bash -c 'grep "plugdev" /lib/group >> /etc/group' \
     ; fi && \
-    sudo usermod -a -G plugdev $USER && \
+    pkexec usermod -a -G plugdev $USER && \
     echo "Please reboot to apply needed changes."
 
 # Install EmuDeck (https://www.emudeck.com/)
@@ -91,7 +91,7 @@ install-openrgb:
 # Install Boxtron, a Steam Play compatibility tool to run DOS games using native Linux DOSBox
 install-boxtron: distrobox-check-fedora
     distrobox enter -n fedora -- bash -c '\
-      sudo dnf install dosbox-staging inotify-tools timidity++ fluid-soundfont-gm -y && \
+      pkexec dnf install dosbox-staging inotify-tools timidity++ fluid-soundfont-gm -y && \
       cd ~/.steam/root/compatibilitytools.d/ && \
       curl -L https://github.com/dreamer/boxtron/releases/download/v0.5.4/boxtron.tar.xz | tar xJf - && \
       distrobox-export --bin /usr/bin/dosbox'
@@ -121,15 +121,15 @@ install-adwaita-for-steam:
 
 # Install Oversteer for Logitech steering wheels
 install-oversteer: distrobox-check-fedora
-    distrobox enter -n fedora -- bash -c 'sudo dnf copr enable -y kylegospo/oversteer && \
-      sudo dnf install -y oversteer && \
+    distrobox enter -n fedora -- bash -c 'pkexec dnf copr enable -y kylegospo/oversteer && \
+      pkexec dnf install -y oversteer && \
       distrobox-export --app oversteer'
 
 # Install Resilio Sync, a file synchronization utility powered by BitTorrent
 install-resilio-sync: distrobox-check-fedora
-    distrobox-enter -n fedora -- bash -c 'sudo rpm --import https://linux-packages.resilio.com/resilio-sync/key.asc' && \
-    distrobox-enter -n fedora -- bash -c 'sudo wget https://raw.githubusercontent.com/ublue-os/bazzite/main/post_install_files/resilio_sync/resilio-sync.repo -O /etc/yum.repos.d/resilio-sync.repo' && \
-    distrobox-enter -n fedora -- bash -c 'sudo dnf install -y resilio-sync' && \
+    distrobox-enter -n fedora -- bash -c 'pkexec rpm --import https://linux-packages.resilio.com/resilio-sync/key.asc' && \
+    distrobox-enter -n fedora -- bash -c 'pkexec wget https://raw.githubusercontent.com/ublue-os/bazzite/main/post_install_files/resilio_sync/resilio-sync.repo -O /etc/yum.repos.d/resilio-sync.repo' && \
+    distrobox-enter -n fedora -- bash -c 'pkexec dnf install -y resilio-sync' && \
     mkdir -p ~/.config/systemd/user/ && \
     rm -f ~/.config/systemd/user/fedora-resilio-sync.service && \
     wget https://raw.githubusercontent.com/ublue-os/bazzite/main/post_install_files/resilio_sync/fedora-resilio-sync.service -O ~/.config/systemd/user/fedora-resilio-sync.service && \
@@ -138,8 +138,8 @@ install-resilio-sync: distrobox-check-fedora
 
 # Install scrcpy, a utility that mirrors Android devices (video and audio) connected via USB or over TCP/IP
 install-scrcpy: distrobox-check-fedora
-    distrobox enter -n fedora -- bash -c 'sudo dnf copr enable -y zeno/scrcpy && \
-      sudo dnf install -y scrcpy && \
+    distrobox enter -n fedora -- bash -c 'pkexec dnf copr enable -y zeno/scrcpy && \
+      pkexec dnf install -y scrcpy && \
       distrobox-export --app scrcpy'
 
 # Install OpenTabletDriver, an open source, cross-platform, user-mode tablet driver

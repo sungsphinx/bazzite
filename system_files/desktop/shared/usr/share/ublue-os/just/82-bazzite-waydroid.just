@@ -25,24 +25,24 @@ setup-waydroid ACTION="":
     fi
     if [[ "${OPTION,,}" =~ ^init ]]; then
       if [[ ! $IMAGE_NAME =~ "deck" && ! $IMAGE_NAME =~ "ally" ]]; then
-        sudo systemctl enable --now waydroid-container
+        pkexec systemctl enable --now waydroid-container
       fi
-      sudo waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
+      pkexec waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
       echo "Waydroid has been initialized, please run waydroid once before you Configure Waydroid"
     elif [[ "${OPTION,,}" =~ ^configure ]]; then
       git clone https://github.com/ublue-os/waydroid_script.git --depth 1 /tmp/waydroid_script
       python -m venv /tmp/waydroid_script/venv
       source /tmp/waydroid_script/venv/bin/activate
-      sudo pip install -r /tmp/waydroid_script/requirements.txt
-      sudo /tmp/waydroid_script/main.py
+      pkexec pip install -r /tmp/waydroid_script/requirements.txt
+      pkexec /tmp/waydroid_script/main.py
       deactivate
-      sudo rm -rf /tmp/waydroid_script
+      pkexec rm -rf /tmp/waydroid_script
     elif [[ "${OPTION,,}" =~ gpu ]]; then
-      sudo /usr/bin/waydroid-choose-gpu
+      pkexec /usr/bin/waydroid-choose-gpu
     elif [[ "${OPTION,,}" =~ integration ]]; then
       waydroid prop set persist.waydroid.multi_windows true
     elif [[ "${OPTION,,}" =~ ^reset ]]; then
       echo "Resetting Waydroid"
-      bash -c 'sudo rm -rf /var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid'
+      bash -c 'pkexec rm -rf /var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid'
       echo "Waydroid has been reset"
     fi

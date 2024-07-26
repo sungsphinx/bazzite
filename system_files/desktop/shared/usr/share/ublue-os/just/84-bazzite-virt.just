@@ -13,7 +13,7 @@ setup-virtualization ACTION="":
       echo "${b}libvirtd${n} service is ${red}disabled${n}!"
       echo "${green}enabling${n} and starting libvirtd"
       echo "If virt-manager says libvirtd.sock is not available after a big update, re-run this command."
-      sudo systemctl enable --now libvirtd 2> /dev/null
+      pkexec systemctl enable --now libvirtd 2> /dev/null
       echo "Press ESC if you want to exit and do not need to do anything"
     fi
     OPTION={{ ACTION }}
@@ -47,18 +47,18 @@ setup-virtualization ACTION="":
           rpm-ostree kargs \
           --append-if-missing="kvm.ignore_msrs=1" \
           --append-if-missing="kvm.report_ignored_msrs=0"
-          sudo systemctl enable bazzite-libvirtd-setup.service \
+          pkexec systemctl enable bazzite-libvirtd-setup.service \
             && echo "libvirtd will be enabled at next reboot"
           echo 'Please reboot to apply changes'
         fi
     elif [[ "${OPTION,,}" =~ (^disable[[:space:]]virtualization|virt-off) ]]; then
       if [ "$(systemctl is-enabled libvirtd.service)" == "enabled" ]; then
         echo "${red}Disabling${n} libvirtd before removal"
-        sudo systemctl disable --now libvirtd 2> /dev/null
+        pkexec systemctl disable --now libvirtd 2> /dev/null
       fi
       if [ "$(systemctl is-enabled bazzite-libvirtd-setup.service)" == "enabled" ]; then
         echo "${red}Disabling${n} bazzite-libvirtd-setup"
-        sudo systemctl disable --now bazzite-libvirtd-setup.service 2> /dev/null
+        pkexec systemctl disable --now bazzite-libvirtd-setup.service 2> /dev/null
       fi
       echo "Removing QEMU and virt-manager..."
       rpm-ostree remove -y virt-manager edk2-ovmf qemu
@@ -77,7 +77,7 @@ setup-virtualization ACTION="":
       CPU_VENDOR=$(grep "vendor_id" "/proc/cpuinfo" | uniq | awk -F": " '{ print $2 }')
       VENDOR_KARG="unset"
       if [[ ${VIRT_TEST} == *kvm.report_ignored_msrs* ]]; then
-        echo 'add_drivers+=" vfio vfio_iommu_type1 vfio-pci "' | sudo tee /etc/dracut.conf.d/vfio.conf
+        echo 'add_drivers+=" vfio vfio_iommu_type1 vfio-pci "' | pkexec tee /etc/dracut.conf.d/vfio.conf
         rpm-ostree initramfs --enable
         if [[ ${CPU_VENDOR} == "AuthenticAMD" ]]; then
           VENDOR_KARG="amd_iommu=on"
@@ -119,7 +119,7 @@ setup-virtualization ACTION="":
           VFIO_IDS_KARG="--delete-if-present=\"$VFIO_IDS\""
         fi
         echo "Removing dracut modules"
-        sudo rm /etc/dracut.conf.d/vfio.conf
+        pkexec rm /etc/dracut.conf.d/vfio.conf
         rpm-ostree initramfs --enable
         rpm-ostree kargs \
         --delete-if-present="iommu=pt" \
@@ -150,18 +150,18 @@ setup-virtualization ACTION="":
       fi
       echo ""
       echo "Setting up kvmfr module so it loads next boot"
-      sudo bash -c 'cat << KVMFR_DRACUT > /etc/dracut.conf.d/kvmfr.conf
+      pkexec bash -c 'cat << KVMFR_DRACUT > /etc/dracut.conf.d/kvmfr.conf
     install_items+=" /etc/modprobe.d/kvmfr.conf "
     KVMFR_DRACUT'
-      sudo bash -c "cat << KVMFR_MODPROBE > /etc/modprobe.d/kvmfr.conf
+      pkexec bash -c "cat << KVMFR_MODPROBE > /etc/modprobe.d/kvmfr.conf
     options kvmfr static_size_mb=128
     KVMFR_MODPROBE"
       echo "Adding udev rule for /dev/kvmfr0"
-      sudo bash -c 'cat << KVMFR_UDEV > /etc/udev/rules.d/99-kvmfr.rules
+      pkexec bash -c 'cat << KVMFR_UDEV > /etc/udev/rules.d/99-kvmfr.rules
     SUBSYSTEM=="kvmfr", OWNER="'$USER'", GROUP="qemu", MODE="0660"
     KVMFR_UDEV'
       echo "Adding /dev/kvmfr0 to qemu cgroup_device_acl"
-      sudo perl -0777 -pi -e 's/
+      pkexec perl -0777 -pi -e 's/
     #cgroup_device_acl = \[
     #    "\/dev\/null", "\/dev\/full", "\/dev\/zero",
     #    "\/dev\/random", "\/dev\/urandom",
@@ -177,7 +177,7 @@ setup-virtualization ACTION="":
     \]
     /' /etc/libvirt/qemu.conf
       echo "Adding SELinux context record for /dev/kvmfr0"
-      sudo semanage fcontext -a -t svirt_tmpfs_t /dev/kvmfr0
+      pkexec semanage fcontext -a -t svirt_tmpfs_t /dev/kvmfr0
       echo "Adding SELinux access rules for /dev/kvmfr0"
       if [ ! -d "$HOME/.config/selinux_te/mod" ]; then
         mkdir -p "$HOME/.config/selinux_te/mod"
@@ -203,10 +203,10 @@ setup-virtualization ACTION="":
       echo "#======== end of kvmfr.te ========"
       checkmodule -M -m -o "$HOME/.config/selinux_te/mod/kvmfr.mod" "$HOME/.config/selinux_te/kvmfr.te"
       semodule_package -o "$HOME/.config/selinux_te/pp/kvmfr.pp" -m "$HOME/.config/selinux_te/mod/kvmfr.mod"
-      sudo semodule -i "$HOME/.config/selinux_te/pp/kvmfr.pp"
+      pkexec semodule -i "$HOME/.config/selinux_te/pp/kvmfr.pp"
       echo "Loading kvmfr module so you do not have to reboot to use it the first time"
-      sudo modprobe kvmfr static_size_mb=128
-      sudo chown $USER:qemu /dev/kvmfr0
+      pkexec modprobe kvmfr static_size_mb=128
+      pkexec chown $USER:qemu /dev/kvmfr0
       echo ""
       echo "Kvmfr0 $(Urllink "https://looking-glass.io/docs/B7-rc1/install_libvirt/#determining-memory" "static size is set to 128mb by default")"
       echo "this will work with up to 4K SDR resolutiion, as most dummy plugs go up to 4K"
@@ -224,7 +224,7 @@ setup-virtualization ACTION="":
       rpm-ostree initramfs --enable
     elif [[ "${OPTION,,}" =~ group ]]; then
       if ! grep -q "^libvirt" /etc/group; then
-        grep '^libvirt' /usr/lib/group | sudo tee -a /etc/group > /dev/null
+        grep '^libvirt' /usr/lib/group | pkexec tee -a /etc/group > /dev/null
       fi
-      sudo usermod -aG libvirt $USER
+      pkexec usermod -aG libvirt $USER
     fi

@@ -31,9 +31,9 @@ toggle-updates ACTION="prompt":
       exit 0
     fi
     if [ "${OPTION,,}" == "enable" ]; then
-      sudo systemctl enable ublue-update.timer
+      pkexec systemctl enable ublue-update.timer
     elif [ "${OPTION,,}" == "disable" ]; then
-      sudo systemctl disable ublue-update.timer
+      pkexec systemctl disable ublue-update.timer
     fi
 
 alias changelog := changelogs

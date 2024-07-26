@@ -26,19 +26,19 @@ get-emudeck:
 
 # Use EXT4 for SD Cards, allows use of SteamOS formatted SD cards
 switch-to-ext4:
-    sudo sed -i 's@STEAMOS_BTRFS_SDCARD_FORMAT_FS="btrfs"@STEAMOS_BTRFS_SDCARD_FORMAT_FS="ext4"@g' /etc/default/steamos-btrfs
+    pkexec sed -i 's@STEAMOS_BTRFS_SDCARD_FORMAT_FS="btrfs"@STEAMOS_BTRFS_SDCARD_FORMAT_FS="ext4"@g' /etc/default/steamos-btrfs
 
 # Install Deck HD BIOS
 install-deckhd-bios:
     #!/usr/bin/bash
     SYS_ID="$(/usr/libexec/hwsupport/sysid)"
     if [[ ":Jupiter:" =~ ":$SYS_ID:" ]]; then
-      RESOLUTION=$(sudo lshw -json -c display | jq -r .[]."configuration"."resolution")
+      RESOLUTION=$(pkexec lshw -json -c display | jq -r .[]."configuration"."resolution")
       if [[ "${RESOLUTION}" = "1200,1920" ]]; then
-        sudo systemctl mask --now jupiter-biosupdate.service
+        pkexec systemctl mask --now jupiter-biosupdate.service
         wget -q https://deckhd.com/downloads/install.sh -O /tmp/deckhd-install.sh
         chmod +x /tmp/deckhd-install.sh
-        sudo ./tmp/deckhd-install.sh
+        pkexec ./tmp/deckhd-install.sh
       else
         echo "Unable to detect DeckHD. Aborting..."
       fi
@@ -51,15 +51,15 @@ enable-deck-bios-firmware-updates:
     #!/usr/bin/bash
     SYS_ID="$(/usr/libexec/hwsupport/sysid)"
     if [[ ":Jupiter:" =~ ":$SYS_ID:" || ":Galileo:" =~ ":$SYS_ID:" ]]; then
-      RESOLUTION=$(sudo lshw -json -c display | jq -r .[]."configuration"."resolution")
+      RESOLUTION=$(pkexec lshw -json -c display | jq -r .[]."configuration"."resolution")
       if [[ "${RESOLUTION}" = "1200,1920" ]]; then
         echo "DeckHD detected. Firmware updates enabled. BIOS updates not enabled."
       elif [[ "$(awk '/MemTotal/{print $(NF-1)}' /proc/meminfo)" == "31664740" ]]; then
         echo "32GB RAM modded Deck detected. Firmware updates enabled. BIOS updates not enabled."
       else
-        sudo systemctl enable jupiter-biosupdate.service
+        pkexec systemctl enable jupiter-biosupdate.service
       fi
-      sudo systemctl enable jupiter-controller-update.service
+      pkexec systemctl enable jupiter-controller-update.service
     else
       echo "This is only applicable to Valve's Steam Deck. Aborting..."
     fi
@@ -67,17 +67,17 @@ enable-deck-bios-firmware-updates:
 # Disable Steam Deck BIOS updates
 disable-bios-updates:
     #!/usr/bin/bash
-    sudo systemctl mask --now jupiter-biosupdate.service
+    pkexec systemctl mask --now jupiter-biosupdate.service
 
 # Disable Steam Deck controller firmware updates
 disable-firmware-updates:
     #!/usr/bin/bash
-    sudo systemctl mask --now jupiter-controller-update.service
+    pkexec systemctl mask --now jupiter-controller-update.service
 
 # Disable SDGyroDSU
 disable-sdgyrodsu:
     #!/usr/bin/bash
-    sudo systemctl mask --user sdgyrodsu.service
+    pkexec systemctl mask --user sdgyrodsu.service
 
 # Re-enable input remapper feature on non-desktop images
 restore-input-remapper:
@@ -96,7 +96,7 @@ _toggle-autologin:
     #!/usr/bin/bash
     DESKTOP_AUTOLOGIN="/etc/bazzite/desktop_autologin"
     if [[ -f $DESKTOP_AUTOLOGIN ]]; then
-      sudo rm -f $DESKTOP_AUTOLOGIN
+      pkexec rm -f $DESKTOP_AUTOLOGIN
     else
-      sudo touch $DESKTOP_AUTOLOGIN
+      pkexec touch $DESKTOP_AUTOLOGIN
     fi
