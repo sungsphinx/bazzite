@@ -30,10 +30,13 @@ jobs:
           - bazzite-deck-cosmic
           - bazzite-ally
           - bazzite-ally-gnome
+          - bazzite-ally-cosmic
           - bazzite-asus
           - bazzite-gnome-asus
+          - bazzite-cosmic-asus
           - bazzite-asus-nvidia
           - bazzite-gnome-asus-nvidia
+          - bazzite-cosmic-asus-nvidia
         major_version: [40]
     steps:
 
