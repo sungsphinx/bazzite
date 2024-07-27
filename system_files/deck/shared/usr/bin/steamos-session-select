@@ -68,6 +68,9 @@ case "$session" in
   plasma-x11-persistent)
     if [[ ${BASE_IMAGE_NAME} == 'kinoite' ]]; then
       session_launcher="plasmax11.desktop"
+    elif [[ ${BASE_IMAGE_NAME} == 'cosmic' ]]; then
+      echo "COSMIC does not support X11"
+      exit 1
     elif [[ ${BASE_IMAGE_NAME} == 'silverblue' ]]; then
       session_launcher="gnome-xorg.desktop"
     fi
