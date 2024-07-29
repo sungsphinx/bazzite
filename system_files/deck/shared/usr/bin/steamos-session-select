@@ -78,7 +78,7 @@ case "$session" in
   desktop|plasma)
     if [[ ${BASE_IMAGE_NAME} == 'kinoite' ]]; then
       session_launcher="plasma-steamos-wayland-oneshot.desktop"
-    elif [[ ${BASE_IMAGE_NAME} == 'silverblue' ]]; then
+    elif [[ ${BASE_IMAGE_NAME} == 'cosmic' ]]; then
       session_launcher="cosmic-oneshot.desktop"
     elif [[ ${BASE_IMAGE_NAME} == 'silverblue' ]]; then
       session_launcher="gnome-wayland-oneshot.desktop"
