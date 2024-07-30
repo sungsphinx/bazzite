@@ -34,7 +34,7 @@ setup-waydroid ACTION="":
       python -m venv /tmp/waydroid_script/venv
       source /tmp/waydroid_script/venv/bin/activate
       pkexec pip install -r /tmp/waydroid_script/requirements.txt
-      pkexec /tmp/waydroid_script/main.py
+      pkexec python3 /tmp/waydroid_script/main.py
       deactivate
       pkexec rm -rf /tmp/waydroid_script
     elif [[ "${OPTION,,}" =~ gpu ]]; then
