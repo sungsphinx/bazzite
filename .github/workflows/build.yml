@@ -69,6 +69,15 @@ jobs:
             kernel_flavor: fsync-ba # must match a kernel_flavor from akmods repo
             kernel_version: 6.9.12-205.fsync.fc40.x86_64 # must match a cached version of the above flavor
     steps:
+      # The COSMIC image does not have a flavor/tag (e.g. main, testing)
+      - name: Define env.BASE_IMAGE_FLAVOR
+        run: |
+          if [[ "${{ matrix.base_image_name }}" == "cosmic" ]]; then
+              echo "BASE_IMAGE_FLAVOR=" >> $GITHUB_ENV
+          else
+              echo "BASE_IMAGE_FLAVOR=-${{ matrix.base_image_flavor }}" >> $GITHUB_ENV
+          fi
+
       - name: Define env.IMAGE_FLAVOR
         run: |
           if [[ "${{ matrix.base_name }}" == "bazzite-nvidia" ]]; then
@@ -111,8 +120,8 @@ jobs:
       # - name: Verify main image
       #   uses: EyeCantCU/cosign-action/verify@v0.3.0
       #   with:
-      #     containers: ${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }}
-      #     pubkey: https://raw.githubusercontent.com/ublue-os/${{ matrix.base_image_flavor }}/main/cosign.pub
+      #     containers: ${{ matrix.base_image_name }}-${{ env.BASE_IMAGE_FLAVOR }}:${{ matrix.fedora_version }}
+      #     pubkey: https://raw.githubusercontent.com/ublue-os/${{ env.BASE_IMAGE_FLAVOR }}/main/cosign.pub
       #     registry: ghcr.io/ublue-os
 
       # - name: Verify akmods image
@@ -153,7 +162,7 @@ jobs:
           command: |
             # pull the base images used for FROM in Containerfile so
             # we can retry on that unfortunately common failure case
-            sudo podman pull ghcr.io/ublue-os/${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }}
+            sudo podman pull ghcr.io/ublue-os/${{ matrix.base_image_name }}${{ env.BASE_IMAGE_FLAVOR }}:${{ matrix.fedora_version }}
             sudo podman pull ghcr.io/ublue-os/akmods:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}-${{ matrix.kernel_version }}
             sudo podman pull ghcr.io/ublue-os/akmods-nvidia:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}-${{ matrix.kernel_version }}
 
@@ -168,7 +177,7 @@ jobs:
           attempt_delay: 15000
           command: |
             set -eo pipefail
-            skopeo inspect docker://ghcr.io/ublue-os/${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }} > source.json
+            skopeo inspect docker://ghcr.io/ublue-os/${{ matrix.base_image_name }}${{ env.BASE_IMAGE_FLAVOR }}:${{ matrix.fedora_version }} > source.json
             ver=$(jq -r '.Labels["org.opencontainers.image.version"]' source.json)
             if [ -z "$ver" ] || [ "null" = "$ver" ]; then
               echo "inspected image version must not be empty or null"
@@ -230,7 +239,7 @@ jobs:
       - name: Remove auxiliary images
         # We are tight on space, need at least 2x for OSTree
         run: |
-          sudo podman image rm ${{ env.IMAGE_REGISTRY }}/${{ matrix.base_image_name }}-${{ matrix.base_image_flavor }}:${{ matrix.fedora_version }}
+          sudo podman image rm ${{ env.IMAGE_REGISTRY }}/${{ matrix.base_image_name }}${{ env.BASE_IMAGE_FLAVOR }}:${{ matrix.fedora_version }}
           sudo podman image rm ${{ env.IMAGE_REGISTRY }}/akmods:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}-${{ matrix.kernel_version }}
           sudo podman image rm ${{ env.IMAGE_REGISTRY }}/akmods-nvidia:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}-${{ matrix.kernel_version }}
       
