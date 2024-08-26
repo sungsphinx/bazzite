@@ -226,7 +226,9 @@ jobs:
             --build-arg IMAGE_FLAVOR=${{ env.IMAGE_FLAVOR }} \
             --build-arg IMAGE_VENDOR=${{ github.repository_owner }} \
             --build-arg BASE_IMAGE_NAME=${{ matrix.base_image_name }} \
-            --build-arg BASE_IMAGE_FLAVOR=${{ env.BASE_IMAGE_FLAVOR }} \
+            if [[ ! "${{ matrix.base_image_name }}" == "cosmic" ]]; then
+            	--build-arg BASE_IMAGE_FLAVOR=${{ matrix.base_image_flavor }} \
+            fi
             --build-arg FEDORA_VERSION=${{ matrix.fedora_version }} \
             --build-arg KERNEL_FLAVOR=${{ matrix.kernel_flavor }} \
             --build-arg KERNEL_VERSION=${{ matrix.kernel_version }} \
