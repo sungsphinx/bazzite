@@ -220,15 +220,20 @@ jobs:
       - name: Build Image
         id: build_image
         run: |
+          BASE_IMAGE_FLAVOR=""
+          if [[ ! "${{ matrix.base_image_name }}" == "cosmic" ]]; then
+              BASE_IMAGE_FLAVOR="--build-arg BASE_IMAGE_FLAVOR=${{ matrix.base_image_flavor }} \"
+          else
+              BASE_IMAGE_FLAVOR=""
+          fi
+
           sudo buildah build \
             --target ${{ matrix.base_name }} \
             --build-arg IMAGE_NAME=${{ env.IMAGE_NAME }} \
             --build-arg IMAGE_FLAVOR=${{ env.IMAGE_FLAVOR }} \
             --build-arg IMAGE_VENDOR=${{ github.repository_owner }} \
             --build-arg BASE_IMAGE_NAME=${{ matrix.base_image_name }} \
-            if [[ ! "${{ matrix.base_image_name }}" == "cosmic" ]]; then
-            	--build-arg BASE_IMAGE_FLAVOR=${{ matrix.base_image_flavor }} \
-            fi
+            ${BASE_IMAGE_FLAVOR}
             --build-arg FEDORA_VERSION=${{ matrix.fedora_version }} \
             --build-arg KERNEL_FLAVOR=${{ matrix.kernel_flavor }} \
             --build-arg KERNEL_VERSION=${{ matrix.kernel_version }} \

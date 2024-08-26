@@ -890,13 +890,7 @@ ARG VERSION_TAG="${VERSION_TAG}"
 ARG VERSION_PRETTY="${VERSION_PRETTY}"
 
 # Fetch NVIDIA driver
-COPY system_files/nvidia/shared /
-
-# COSMIC does not have it's own folder here
-RUN if ! [[ "${BASE_IMAGE_NAME}" == "cosmic" ]]; then \
-	cp system_files/nvidia/${BASE_IMAGE_NAME} / \
-    ; fi && \
-    ostree container commit
+COPY system_files/nvidia/shared system_files/nvidia/${BASE_IMAGE_NAME} /
 
 # Remove everything that doesn't work well with NVIDIA
 # Install X11 session (Remove me for Fedora 41)
